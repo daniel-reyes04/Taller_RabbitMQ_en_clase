@@ -1,0 +1,9 @@
+# Taller_RabbitMQ_en_clase
+Taller en clase
+Lo que se ejecuto fue básicamente una cola de trabajo (Work Queue) usando RabbitMQ para repartir tareas entre varios procesadores de estas tareas que en este caso son los Workers.El Productor que se enciuentra en el srchivo producer.py es el encargado de generar las tareas, se le  indico que la cola se llamara tareas_distribuidas y que fuera duradera (durable=True) esto asegura que aunque el servidor de RabbitMQ se reinicie la cola no desaparezca osea que persista. Además, cada mensaje lo marqué como persistente, lo que garantiza que si el servidor falla mientras un mensaje está en cola, este ya queda guardado en disco y no se pierde. Por otro lado, los Workers que su logica se encuantra en el archivo worker.py estos son los que reciben y procesan las tareas esto para que el trabajo se reparta de manera justa y que un Worker lento no se sature con demasiadas tareas configuré el channel.basic_qos(prefetch_count=1) que con esto, básicamente se le dice a RabbitMQ que no le envíe más de una tarea a un Worker hasta que este confirme que terminó la anterior garantizando que la de forma el reparto se hace según la disponibilidad real de cada Worker, que era justamente lo que se pedia.
+El tema de la tolerancia a fallos lo resolví con los Acknowledgments (ACK). El Worker procesa la tarea simulé el tiempo con time.sleep() y solo cuando termina envía el ch.basic_ack(). Si un Worker falla o se desconecta antes de enviar ese ACK, RabbitMQ detecta que la tarea quedó pendiente y la reasigna automáticamente a otro Worker disponible asi se  asegura de que ninguna tarea se pierda.
+
+Las evidencias de casa proceso se encuantran en la misma carpeta de los archivos
+
+
+Nota:Por unos problemas que tuve al momento de la instalacion de python en mi maquina virtual dipuse de otro entorno virtual dentro de este 
